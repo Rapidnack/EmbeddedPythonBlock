@@ -313,13 +313,16 @@ class blk(gr.basic_block):
         print('connecting to %s:%d' % (self._address, self._port))
         self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._client.connect((self._address, self._port))
+        self._stream = self._client.makefile()
 
     def _send_frequency(self):
         try:
-            self._client.send('F:%d\n' % int(self._frequency))
+            self._stream.write('F:%d\n' % int(self._frequency))
+            self._stream.flush()
         except:
             self._connect()
-            self._client.send('F:%d\n' % int(self._frequency))
+            self._stream.write('F:%d\n' % int(self._frequency))
+            self._stream.flush()
 
     @property
     def frequency(self):

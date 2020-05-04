@@ -445,9 +445,9 @@ class blk(gr.basic_block):
 
         try:
             self._connect()
-            self._send_c0()
-            self._send_c1()
-            self._send_c2()
+            self._send_c(0, self._c0)
+            self._send_c(1, self._c1)
+            self._send_c(2, self._c2)
         except:
             pass
 
@@ -455,27 +455,16 @@ class blk(gr.basic_block):
         print('connecting to %s:%d' % (self._address, self._port))
         self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._client.connect((self._address, self._port))
+        self._stream = self._client.makefile()
 
-    def _send_c0(self):
+    def _send_c(self, index, freq):
         try:
-            self._client.send('C0:%d\n' % int(self._c0))
+            self._stream.write('C%d:%d\n' % (index, int(freq)))
+            self._stream.flush()
         except:
             self._connect()
-            self._client.send('C0:%d\n' % int(self._c0))
-
-    def _send_c1(self):
-        try:
-            self._client.send('C1:%d\n' % int(self._c1))
-        except:
-            self._connect()
-            self._client.send('C1:%d\n' % int(self._c1))
-
-    def _send_c2(self):
-        try:
-            self._client.send('C2:%d\n' % int(self._c2))
-        except:
-            self._connect()
-            self._client.send('C2:%d\n' % int(self._c2))
+            self._stream.write('C%d:%d\n' % (index, int(freq)))
+            self._stream.flush()
 
     @property
     def c0(self):
@@ -484,7 +473,7 @@ class blk(gr.basic_block):
     @c0.setter
     def c0(self, c0):
         self._c0 = c0
-        self._send_c0()
+        self._send_c(0, self._c0)
 
     @property
     def c1(self):
@@ -493,7 +482,7 @@ class blk(gr.basic_block):
     @c1.setter
     def c1(self, c1):
         self._c1 = c1
-        self._send_c1()
+        self._send_c(1, self._c1)
 
     @property
     def c2(self):
@@ -502,7 +491,7 @@ class blk(gr.basic_block):
     @c2.setter
     def c2(self, c2):
         self._c2 = c2
-        self._send_c2()
+        self._send_c(2, self._c2)
 </value>
     </param>
     <param>
